@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CV Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Playfair+Display:wght@600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Raleway:wght@300;400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&family=Josefin+Sans:wght@300;400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"><\/script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --accent:#1e3a5f;--accent-light:#2d5282;--accent-muted:#4a7bb5;
+      --sidebar-bg:#1e3a5f;--sidebar-text:#e8eef5;--sidebar-sub:#9ab3ce;
+      --skill-gradient:linear-gradient(90deg,#4a7bb5,#7ab0e0);
+      --app-bg:#f0f2f5;--panel-bg:#ffffff;--panel-border:#e2e8f0;
+      --form-label:#374151;--form-input-border:#d1d5db;--form-input-bg:#f9fafb;
+      --form-input-focus:#3b82f6;--text-dark:#1a1f2e;--text-mid:#4a5568;
+      --text-light:#718096;--border:#e2e8f0;--dot:#4a7bb5;
+      --ff-body:'DM Sans',sans-serif;--ff-display:'Playfair Display',serif;
+      --a4-w:794px;--a4-h:1123px;
+    }
+    [data-theme="sage"]{--accent:#2d5a45;--accent-light:#3d7a5f;--accent-muted:#5a9e7a;--sidebar-bg:#2d5a45;--sidebar-text:#e8f5ef;--sidebar-sub:#9acbaf;--skill-gradient:linear-gradient(90deg,#5a9e7a,#8ecba8);--dot:#5a9e7a}
+    [data-theme="slate"]{--accent:#334155;--accent-light:#475569;--accent-muted:#64748b;--sidebar-bg:#1e293b;--sidebar-text:#e2e8f0;--sidebar-sub:#94a3b8;--skill-gradient:linear-gradient(90deg,#64748b,#94a3b8);--dot:#64748b}
+    [data-theme="terra"]{--accent:#7c3b2a;--accent-light:#9c4f3a;--accent-muted:#c0694e;--sidebar-bg:#7c3b2a;--sidebar-text:#fdf0ed;--sidebar-sub:#d4917e;--skill-gradient:linear-gradient(90deg,#c0694e,#d4917e);--dot:#c0694e}
+    [data-theme="midnight"]{--accent:#1a1a2e;--accent-light:#16213e;--accent-muted:#7b68ee;--sidebar-bg:#0f0f1a;--sidebar-text:#e8e8ff;--sidebar-sub:#9090c0;--skill-gradient:linear-gradient(90deg,#7b68ee,#b0a0ff);--dot:#7b68ee}
+    [data-theme="gold"]{--accent:#78550a;--accent-light:#9a6f10;--accent-muted:#c4901a;--sidebar-bg:#1c160a;--sidebar-text:#fef7e0;--sidebar-sub:#c4a86a;--skill-gradient:linear-gradient(90deg,#c4901a,#e0b84a);--dot:#c4901a}
+    [data-font="classic"]{--ff-body:'Lato',sans-serif;--ff-display:'Merriweather',serif}
+    [data-font="elegant"]{--ff-body:'Raleway',sans-serif;--ff-display:'Crimson Pro',serif}
+    [data-font="modern"]{--ff-body:'Josefin Sans',sans-serif;--ff-display:'Libre Baskerville',serif}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:var(--ff-body);background:var(--app-bg);display:flex;flex-direction:column}
+    .topbar{height:56px;background:#0f172a;display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+    .topbar-logo{font-family:var(--ff-display);font-size:17px;color:#f8fafc;letter-spacing:-.3px;margin-right:auto}
+    .topbar-logo span{color:#60a5fa}
+    .toolbar-group{display:flex;align-items:center;gap:8px}
+    .toolbar-label{font-size:11px;font-weight:500;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em}
+    .color-swatches{display:flex;gap:5px}
+    .swatch{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
+    .swatch:hover,.swatch.active{border-color:#fff;transform:scale(1.15)}
+    .swatch[data-theme="marine"]{background:#1e3a5f}
+    .swatch[data-theme="sage"]{background:#2d5a45}
+    .swatch[data-theme="slate"]{background:#334155}
+    .swatch[data-theme="terra"]{background:#7c3b2a}
+    .swatch[data-theme="midnight"]{background:#0f0f1a}
+    .swatch[data-theme="gold"]{background:#78550a}
+    .select-ctrl{background:#1e293b;border:1px solid #334155;color:#e2e8f0;font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;font-family:inherit}
+    .btn-export{background:linear-gradient(135deg,#3b82f6,#2563eb);color:white;border:none;padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
+    .btn-export:hover{background:linear-gradient(135deg,#2563eb,#1d4ed8);transform:translateY(-1px)}
+    .divider{width:1px;height:28px;background:#334155;margin:0 4px}
+    .workspace{display:flex;flex:1;overflow:hidden}
+    .form-panel{width:380px;min-width:320px;background:var(--panel-bg);border-right:1px solid var(--panel-border);overflow-y:auto;flex-shrink:0}
+    .form-panel::-webkit-scrollbar{width:5px}
+    .form-panel::-webkit-scrollbar-thumb{background:#d1d5db;border-radius:99px}
+    .form-section{border-bottom:1px solid var(--panel-border)}
+    .form-section-header{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;background:#f8fafc;transition:background .1s}
+    .form-section-header:hover{background:#f1f5f9}
+    .form-section-title{font-size:12px;font-weight:600;color:#374151;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:8px}
+    .form-section-title .icon{width:18px;height:18px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center}
+    .form-section-title .icon svg{width:10px;height:10px;stroke:white}
+    .chevron{width:16px;height:16px;color:#9ca3af;transition:transform .2s}
+    .form-section.open .chevron{transform:rotate(180deg)}
+    .form-section-body{padding:16px 20px;display:none;flex-direction:column;gap:12px}
+    .form-section.open .form-section-body{display:flex}
+    .field{display:flex;flex-direction:column;gap:4px}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{font-size:11.5px;font-weight:500;color:var(--form-label)}
+    input[type=text],input[type=email],input[type=tel],input[type=url],textarea,select{border:1px solid var(--form-input-border);background:var(--form-input-bg);color:#1f2937;border-radius:7px;padding:7px 10px;font-size:12.5px;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+    input:focus,textarea:focus,select:focus{border-color:var(--form-input-focus);box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+    textarea{resize:vertical;min-height:70px;line-height:1.5}
+    .photo-upload-zone{border:2px dashed var(--form-input-border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .15s}
+    .photo-upload-zone:hover{border-color:var(--accent);background:#f0f7ff}
+    .photo-preview-thumb{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);margin:0 auto 8px;display:none}
+    .photo-upload-text{font-size:12px;color:#6b7280}
+    .photo-upload-text b{color:var(--accent)}
+    .entry-card{background:#f8fafc;border:1px solid #e9ecf0;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;position:relative}
+    .entry-card-header{display:flex;align-items:center;justify-content:space-between}
+    .entry-card-label{font-size:11.5px;font-weight:600;color:var(--accent)}
+    .btn-remove{background:#fee2e2;border:none;color:#dc2626;width:22px;height:22px;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .1s}
+    .btn-remove:hover{background:#fca5a5}
+    .btn-add{background:none;border:1.5px dashed var(--accent);color:var(--accent);border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;font-family:inherit;width:100%;justify-content:center}
+    .btn-add:hover{background:var(--accent);color:white}
+    .missions-list{display:flex;flex-direction:column;gap:5px}
+    .mission-row{display:flex;gap:6px;align-items:flex-start}
+    .mission-row input{flex:1;font-size:12px;padding:5px 8px}
+    .btn-mission-remove{background:#f1f5f9;border:none;color:#94a3b8;width:24px;height:30px;border-radius:5px;cursor:pointer;flex-shrink:0;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .1s}
+    .btn-mission-remove:hover{background:#fee2e2;color:#dc2626}
+    .skill-row{display:grid;grid-template-columns:1fr 80px 70px;gap:6px;align-items:center}
+    .skill-row input[type=range]{padding:0;border:none;background:none;box-shadow:none;accent-color:var(--accent)}
+    .skill-level-val{font-size:10px;color:#6b7280;text-align:center}
+    .preview-panel{flex:1;overflow:auto;display:flex;justify-content:center;align-items:flex-start;padding:32px 20px;background:var(--app-bg)}
+    .preview-panel::-webkit-scrollbar{width:8px;height:8px}
+    .preview-panel::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:99px}
+    .cv-scale-wrapper{transform-origin:top center}
+    #cv-preview{width:var(--a4-w);min-height:var(--a4-h);background:#fff;display:grid;grid-template-columns:240px 1fr;box-shadow:0 24px 64px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.08);overflow:hidden;font-family:var(--ff-body)}
+    .cv-sidebar{background:var(--sidebar-bg);color:var(--sidebar-text);display:flex;flex-direction:column}
+    .cv-sidebar-photo{padding:32px 24px 24px;display:flex;flex-direction:column;align-items:center;border-bottom:1px solid rgba(255,255,255,.1)}
+    .cv-photo-ring{width:100px;height:100px;border-radius:50%;border:3px solid rgba(255,255,255,.22);padding:3px;flex-shrink:0}
+    .cv-photo-ring img,.cv-photo-placeholder{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+    .cv-photo-placeholder{background:linear-gradient(135deg,var(--accent-light),var(--accent-muted));display:flex;align-items:center;justify-content:center}
+    .cv-photo-placeholder svg{opacity:.65}
+    .cv-sidebar-block{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .cv-sidebar-block:last-child{border-bottom:none;flex:1}
+    .cv-block-title{font-size:8.5px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--sidebar-sub);margin-bottom:12px}
+    .cv-contact-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+    .cv-contact-item{display:flex;align-items:flex-start;gap:8px;font-size:11px;line-height:1.45;color:var(--sidebar-text)}
+    .cv-contact-icon{width:13px;height:13px;flex-shrink:0;opacity:.7;margin-top:1px}
+    .cv-skill-item{margin-bottom:10px}
+    .cv-skill-item:last-child{margin-bottom:0}
+    .cv-skill-label{font-size:10.5px;font-weight:500;display:flex;justify-content:space-between;margin-bottom:4px}
+    .cv-skill-level{color:var(--sidebar-sub);font-weight:400;font-size:9.5px}
+    .cv-skill-bar{height:3px;background:rgba(255,255,255,.14);border-radius:99px;overflow:hidden}
+    .cv-skill-fill{height:100%;background:var(--skill-gradient);border-radius:99px;transition:width .4s}
+    .cv-lang-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;font-size:11px}
+    .cv-lang-name{font-weight:500}
+    .cv-lang-level{color:var(--sidebar-sub);font-size:10px}
+    .cv-tag-list{display:flex;flex-wrap:wrap;gap:5px}
+    .cv-tag{font-size:9.5px;font-weight:500;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.14);padding:3px 9px;border-radius:99px}
+    .cv-empty{font-size:10px;color:var(--sidebar-sub);font-style:italic}
+    .cv-main{display:flex;flex-direction:column}
+    .cv-main-header{padding:30px 30px 20px;border-bottom:1px solid var(--border)}
+    .cv-name{font-family:var(--ff-display);font-size:27px;font-weight:700;color:var(--text-dark);line-height:1.15;letter-spacing:-.3px}
+    .cv-title{font-size:11px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-muted);margin-top:5px}
+    .cv-section{padding:18px 30px;border-bottom:1px solid var(--border)}
+    .cv-section:last-child{border-bottom:none;flex:1}
+    .cv-section-heading{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+    .cv-section-bar{width:3px;height:14px;background:var(--accent);border-radius:99px}
+    .cv-section-title{font-size:9px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+    .cv-profile-text{font-size:11.5px;line-height:1.75;color:var(--text-mid);font-weight:300}
+    .cv-exp-entry{display:grid;grid-template-columns:104px 1fr;gap:0 14px;margin-bottom:16px}
+    .cv-exp-entry:last-child{margin-bottom:0}
+    .cv-exp-meta{padding-top:1px}
+    .cv-exp-date{font-size:9.5px;font-weight:500;color:var(--accent-muted)}
+    .cv-exp-location{font-size:9.5px;color:var(--text-light);margin-top:2px}
+    .cv-exp-role{font-size:12.5px;font-weight:600;color:var(--text-dark);line-height:1.3}
+    .cv-exp-company{font-size:11px;font-weight:500;color:var(--accent-muted);margin-top:1px;margin-bottom:6px}
+    .cv-exp-missions{list-style:none;display:flex;flex-direction:column;gap:3px}
+    .cv-exp-missions li{font-size:11px;line-height:1.6;color:var(--text-mid);font-weight:300;display:flex;gap:7px;align-items:flex-start}
+    .cv-exp-missions li::before{content:'';width:4px;height:4px;background:var(--dot);border-radius:50%;flex-shrink:0;margin-top:6px}
+    .cv-edu-entry{display:grid;grid-template-columns:104px 1fr;gap:0 14px;margin-bottom:13px}
+    .cv-edu-entry:last-child{margin-bottom:0}
+    .cv-edu-date{font-size:9.5px;font-weight:500;color:var(--accent-muted);padding-top:1px}
+    .cv-edu-degree{font-size:12.5px;font-weight:600;color:var(--text-dark);line-height:1.3}
+    .cv-edu-school{font-size:11px;color:var(--text-mid);margin-top:1px}
+    .cv-edu-note{font-size:10px;color:var(--text-light);margin-top:2px;font-weight:300}
+    .cv-no-content{font-size:11px;color:#c4c9d4;font-style:italic}
+    @media print{body{overflow:visible}.topbar,.form-panel{display:none}.workspace{display:block}.preview-panel{padding:0;background:white}.cv-scale-wrapper{transform:none!important}#cv-preview{box-shadow:none;width:100%}}
+    .export-loading{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:16px}
+    .export-loading.visible{display:flex}
+    .spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.2);border-top-color:#60a5fa;border-radius:50%;animation:spin .7s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .export-loading p{color:white;font-size:14px;font-weight:500}
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-logo">CV <span>Generator</span></div>
+  <div class="toolbar-group">
+    <span class="toolbar-label">Couleur</span>
+    <div class="color-swatches">
+      <div class="swatch active" data-theme="marine" title="Marine"></div>
+      <div class="swatch" data-theme="sage" title="Sauge"></div>
+      <div class="swatch" data-theme="slate" title="Ardoise"></div>
+      <div class="swatch" data-theme="terra" title="Terracotta"></div>
+      <div class="swatch" data-theme="midnight" title="Minuit"></div>
+      <div class="swatch" data-theme="gold" title="Or"></div>
+    </div>
+  </div>
+  <div class="divider"></div>
+  <div class="toolbar-group">
+    <span class="toolbar-label">Police</span>
+    <select class="select-ctrl" id="font-select">
+      <option value="default">DM Sans / Playfair</option>
+      <option value="classic">Lato / Merriweather</option>
+      <option value="elegant">Raleway / Crimson Pro</option>
+      <option value="modern">Josefin / Baskerville</option>
+    </select>
+  </div>
+  <div class="divider"></div>
+  <button class="btn-export" id="btn-export">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exporter PDF
+  </button>
+</header>
+<div class="workspace">
+  <aside class="form-panel">
+    <div class="form-section open">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0118 0"/></svg></div>
+          Informations personnelles
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div class="field">
+          <label>Photo</label>
+          <div class="photo-upload-zone" onclick="document.getElementById('photo-input').click()">
+            <img id="photo-thumb" class="photo-preview-thumb" src="" alt="" />
+            <p class="photo-upload-text"><b>Cliquez</b> pour ajouter une photo</p>
+            <input type="file" id="photo-input" accept="image/*" style="display:none" onchange="handlePhoto(event)" />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Prénom</label><input type="text" id="f-firstname" placeholder="Thomas" oninput="updatePreview()" /></div>
+          <div class="field"><label>Nom</label><input type="text" id="f-lastname" placeholder="Dupont" oninput="updatePreview()" /></div>
+        </div>
+        <div class="field"><label>Titre / Poste</label><input type="text" id="f-title" placeholder="Ingénieur en Génie Mécanique" oninput="updatePreview()" /></div>
+        <div class="field-row">
+          <div class="field"><label>Téléphone</label><input type="tel" id="f-phone" placeholder="06 12 34 56 78" oninput="updatePreview()" /></div>
+          <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="thomas@email.com" oninput="updatePreview()" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Ville</label><input type="text" id="f-city" placeholder="Nantes, France" oninput="updatePreview()" /></div>
+          <div class="field"><label>LinkedIn</label><input type="text" id="f-linkedin" placeholder="linkedin.com/in/..." oninput="updatePreview()" /></div>
+        </div>
+        <div class="field"><label>GitHub / Site web</label><input type="text" id="f-github" placeholder="github.com/..." oninput="updatePreview()" /></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+          Profil / Présentation
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div class="field"><label>Paragraphe de présentation</label><textarea id="f-profile" rows="4" placeholder="Décrivez votre profil, vos motivations..." oninput="updatePreview()"></textarea></div>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+          Expériences
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div id="exp-list"></div>
+        <button class="btn-add" onclick="addExp()">+ Ajouter une expérience</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/></svg></div>
+          Formations
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div id="edu-list"></div>
+        <button class="btn-add" onclick="addEdu()">+ Ajouter une formation</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          Compétences
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div id="skill-list"></div>
+        <button class="btn-add" onclick="addSkill()">+ Ajouter une compétence</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+          Langues
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div id="lang-list"></div>
+        <button class="btn-add" onclick="addLang()">+ Ajouter une langue</button>
+      </div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-header" onclick="toggleSection(this)">
+        <div class="form-section-title">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
+          Centres d'intérêt
+        </div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="form-section-body">
+        <div class="field"><label>Séparés par des virgules</label><input type="text" id="f-interests" placeholder="Course à pied, Manga, Impression 3D" oninput="updatePreview()" /></div>
+      </div>
+    </div>
+  </aside>
+  <div class="preview-panel" id="preview-panel">
+    <div class="cv-scale-wrapper" id="cv-scale-wrapper">
+      <div id="cv-preview">
+        <aside class="cv-sidebar">
+          <div class="cv-sidebar-photo">
+            <div class="cv-photo-ring">
+              <div class="cv-photo-placeholder" id="cv-photo-placeholder">
+                <svg width="50" height="50" viewBox="0 0 54 54" fill="none"><circle cx="27" cy="20" r="11" fill="white"/><path d="M7 48c0-11 9-18 20-18s20 7 20 18" stroke="white" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>
+              </div>
+              <img id="cv-photo-img" src="" alt="" style="display:none;width:100%;height:100%;border-radius:50%;object-fit:cover;" />
+            </div>
+          </div>
+          <div class="cv-sidebar-block">
+            <p class="cv-block-title">Coordonnées</p>
+            <ul class="cv-contact-list">
+              <li class="cv-contact-item" id="cv-contact-phone" style="display:none">
+                <svg class="cv-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.8 19.8 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.13 1.01.36 2.01.71 2.97a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.11-.56a2 2 0 012.11.45c.96.35 1.96.58 2.97.71A2 2 0 0122 16.92z"/></svg>
+                <span id="cv-phone-val"></span>
+              </li>
+              <li class="cv-contact-item" id="cv-contact-email" style="display:none">
+                <svg class="cv-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span id="cv-email-val"></span>
+              </li>
+              <li class="cv-contact-item" id="cv-contact-city" style="display:none">
+                <svg class="cv-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span id="cv-city-val"></span>
+              </li>
+              <li class="cv-contact-item" id="cv-contact-linkedin" style="display:none">
+                <svg class="cv-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                <span id="cv-linkedin-val"></span>
+              </li>
+              <li class="cv-contact-item" id="cv-contact-github" style="display:none">
+                <svg class="cv-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+                <span id="cv-github-val"></span>
+              </li>
+            </ul>
+          </div>
+          <div class="cv-sidebar-block">
+            <p class="cv-block-title">Compétences</p>
+            <div id="cv-skills-list"><p class="cv-empty">Aucune compétence ajoutée</p></div>
+          </div>
+          <div class="cv-sidebar-block">
+            <p class="cv-block-title">Langues</p>
+            <div id="cv-langs-list"><p class="cv-empty">Aucune langue ajoutée</p></div>
+          </div>
+          <div class="cv-sidebar-block">
+            <p class="cv-block-title">Centres d'intérêt</p>
+            <div id="cv-interests-list"><p class="cv-empty">Aucun intérêt ajouté</p></div>
+          </div>
+        </aside>
+        <main class="cv-main">
+          <header class="cv-main-header">
+            <h1 class="cv-name" id="cv-name">Prénom Nom</h1>
+            <p class="cv-title" id="cv-cv-title">Votre titre ou poste</p>
+          </header>
+          <section class="cv-section">
+            <div class="cv-section-heading"><div class="cv-section-bar"></div><span class="cv-section-title">Profil</span></div>
+            <p class="cv-profile-text" id="cv-profile">Remplissez le formulaire à gauche pour voir votre CV apparaître ici en temps réel.</p>
+          </section>
+          <section class="cv-section">
+            <div class="cv-section-heading"><div class="cv-section-bar"></div><span class="cv-section-title">Expériences Professionnelles</span></div>
+            <div id="cv-exp-list"><p class="cv-no-content">Aucune expérience ajoutée</p></div>
+          </section>
+          <section class="cv-section">
+            <div class="cv-section-heading"><div class="cv-section-bar"></div><span class="cv-section-title">Formations</span></div>
+            <div id="cv-edu-list"><p class="cv-no-content">Aucune formation ajoutée</p></div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="export-loading" id="export-loading">
+  <div class="spinner"></div>
+  <p>Génération du PDF en cours…</p>
+</div>
+<script>
+var state={photo:null,experiences:[],educations:[],skills:[],languages:[]};
+var expCounter=0,eduCounter=0,skillCounter=0,langCounter=0;
+function toggleSection(h){h.parentElement.classList.toggle('open')}
+function handlePhoto(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){state.photo=ev.target.result;var t=document.getElementById('photo-thumb');t.src=state.photo;t.style.display='block';document.querySelector('.photo-upload-text').style.display='none';updatePreview()};r.readAsDataURL(f)}
+function addExp(){var id=++expCounter;state.experiences.push({id:id,role:'',company:'',date:'',location:'',missions:['']});renderExpForm();updatePreview()}
+function removeExp(id){state.experiences=state.experiences.filter(function(e){return e.id!==id});renderExpForm();updatePreview()}
+function addMission(expId){var exp=state.experiences.find(function(e){return e.id===expId});if(exp)exp.missions.push('');renderExpForm();updatePreview()}
+function removeMission(expId,mIdx){var exp=state.experiences.find(function(e){return e.id===expId});if(exp)exp.missions.splice(mIdx,1);renderExpForm();updatePreview()}
+function syncExp(id,field,value){var exp=state.experiences.find(function(e){return e.id===id});if(exp)exp[field]=value;updatePreview()}
+function syncMission(expId,mIdx,value){var exp=state.experiences.find(function(e){return e.id===expId});if(exp)exp.missions[mIdx]=value;updatePreview()}
+function renderExpForm(){var c=document.getElementById('exp-list');c.innerHTML='';state.experiences.forEach(function(exp,i){var card=document.createElement('div');card.className='entry-card';card.style.marginBottom='10px';card.innerHTML='<div class="entry-card-header"><span class="entry-card-label">Expérience '+(i+1)+'</span><button class="btn-remove" onclick="removeExp('+exp.id+')">×</button></div><div class="field"><label>Poste / Rôle</label><input type="text" value="'+esc(exp.role)+'" placeholder="Technicien Métrologue" oninput="syncExp('+exp.id+',\'role\',this.value)" /></div><div class="field-row"><div class="field"><label>Entreprise</label><input type="text" value="'+esc(exp.company)+'" placeholder="Nom entreprise" oninput="syncExp('+exp.id+',\'company\',this.value)" /></div><div class="field"><label>Lieu</label><input type="text" value="'+esc(exp.location)+'" placeholder="Ville" oninput="syncExp('+exp.id+',\'location\',this.value)" /></div></div><div class="field"><label>Dates</label><input type="text" value="'+esc(exp.date)+'" placeholder="Sept. 2023 – Août 2024" oninput="syncExp('+exp.id+',\'date\',this.value)" /></div><div class="field"><label>Missions</label><div class="missions-list">'+exp.missions.map(function(m,idx){return'<div class="mission-row"><input type="text" value="'+esc(m)+'" placeholder="Description de la mission" oninput="syncMission('+exp.id+','+idx+',this.value)" /><button class="btn-mission-remove" onclick="removeMission('+exp.id+','+idx+')">×</button></div>'}).join('')+'</div><button class="btn-add" style="margin-top:6px;font-size:11px;padding:5px" onclick="addMission('+exp.id+')">+ Mission</button></div>';c.appendChild(card)})}
+function addEdu(){var id=++eduCounter;state.educations.push({id:id,degree:'',school:'',date:'',note:''});renderEduForm();updatePreview()}
+function removeEdu(id){state.educations=state.educations.filter(function(e){return e.id!==id});renderEduForm();updatePreview()}
+function syncEdu(id,field,value){var edu=state.educations.find(function(e){return e.id===id});if(edu)edu[field]=value;updatePreview()}
+function renderEduForm(){var c=document.getElementById('edu-list');c.innerHTML='';state.educations.forEach(function(edu,i){var card=document.createElement('div');card.className='entry-card';card.style.marginBottom='10px';card.innerHTML='<div class="entry-card-header"><span class="entry-card-label">Formation '+(i+1)+'</span><button class="btn-remove" onclick="removeEdu('+edu.id+')">×</button></div><div class="field"><label>Diplôme</label><input type="text" value="'+esc(edu.degree)+'" placeholder="BUT Génie Mécanique" oninput="syncEdu('+edu.id+',\'degree\',this.value)" /></div><div class="field"><label>École</label><input type="text" value="'+esc(edu.school)+'" placeholder="IUT d\'Angers" oninput="syncEdu('+edu.id+',\'school\',this.value)" /></div><div class="field-row"><div class="field"><label>Dates</label><input type="text" value="'+esc(edu.date)+'" placeholder="2022 – 2025" oninput="syncEdu('+edu.id+',\'date\',this.value)" /></div><div class="field"><label>Mention</label><input type="text" value="'+esc(edu.note)+'" placeholder="Mention Bien" oninput="syncEdu('+edu.id+',\'note\',this.value)" /></div></div>';c.appendChild(card)})}
+function addSkill(){var id=++skillCounter;state.skills.push({id:id,name:'',level:75});renderSkillForm();updatePreview()}
+function removeSkill(id){state.skills=state.skills.filter(function(s){return s.id!==id});renderSkillForm();updatePreview()}
+function syncSkill(id,field,value){var sk=state.skills.find(function(s){return s.id===id});if(sk)sk[field]=field==='level'?parseInt(value):value;if(field==='level'){var v=document.getElementById('skill-val-'+id);if(v)v.textContent=levelLabel(parseInt(value))}updatePreview()}
+function levelLabel(v){if(v>=90)return'Expert';if(v>=70)return'Avancé';if(v>=50)return'Intermédiaire';return'Débutant'}
+function renderSkillForm(){var c=document.getElementById('skill-list');c.innerHTML='';state.skills.forEach(function(sk,i){var card=document.createElement('div');card.className='entry-card';card.style.marginBottom='8px';card.innerHTML='<div class="entry-card-header"><span class="entry-card-label">Compétence '+(i+1)+'</span><button class="btn-remove" onclick="removeSkill('+sk.id+')">×</button></div><div class="skill-row"><input type="text" value="'+esc(sk.name)+'" placeholder="SolidWorks…" oninput="syncSkill('+sk.id+',\'name\',this.value)" /><input type="range" min="10" max="100" value="'+sk.level+'" oninput="syncSkill('+sk.id+',\'level\',this.value)" /><span class="skill-level-val" id="skill-val-'+sk.id+'">'+levelLabel(sk.level)+'</span></div>';c.appendChild(card)})}
+function addLang(){var id=++langCounter;state.languages.push({id:id,name:'',level:''});renderLangForm();updatePreview()}
+function removeLang(id){state.languages=state.languages.filter(function(l){return l.id!==id});renderLangForm();updatePreview()}
+function syncLang(id,field,value){var l=state.languages.find(function(l){return l.id===id});if(l)l[field]=value;updatePreview()}
+function renderLangForm(){var c=document.getElementById('lang-list');c.innerHTML='';state.languages.forEach(function(l,i){var card=document.createElement('div');card.className='entry-card';card.style.marginBottom='8px';var opts=['','Natif / Bilingue','C2 – Maîtrise','C1 – Avancé','B2 – Intermédiaire+','B1 – Intermédiaire','A2 – Élémentaire','Notions'];card.innerHTML='<div class="entry-card-header"><span class="entry-card-label">Langue '+(i+1)+'</span><button class="btn-remove" onclick="removeLang('+l.id+')">×</button></div><div class="field-row"><div class="field"><label>Langue</label><input type="text" value="'+esc(l.name)+'" placeholder="Anglais" oninput="syncLang('+l.id+',\'name\',this.value)" /></div><div class="field"><label>Niveau</label><select onchange="syncLang('+l.id+',\'level\',this.value)">'+opts.map(function(o){return'<option value="'+o+'" '+(l.level===o?'selected':'')+'>'+( o||'Choisir…')+'</option>'}).join('')+'</select></div></div>';c.appendChild(card)})}
+function updatePreview(){
+  var ph=document.getElementById('cv-photo-placeholder'),pi=document.getElementById('cv-photo-img');
+  if(state.photo){pi.src=state.photo;pi.style.display='block';ph.style.display='none'}else{pi.style.display='none';ph.style.display='flex'}
+  var fn=val('f-firstname'),ln=val('f-lastname');
+  setText('cv-name',fn||ln?(fn+' '+ln).trim():'Prénom Nom');
+  setText('cv-cv-title',val('f-title')||'Votre titre ou poste');
+  showContact('cv-contact-phone','cv-phone-val',val('f-phone'));
+  showContact('cv-contact-email','cv-email-val',val('f-email'));
+  showContact('cv-contact-city','cv-city-val',val('f-city'));
+  showContact('cv-contact-linkedin','cv-linkedin-val',val('f-linkedin'));
+  showContact('cv-contact-github','cv-github-val',val('f-github'));
+  setText('cv-profile',val('f-profile')||'Remplissez le formulaire à gauche pour voir votre CV en temps réel.');
+  var ec=document.getElementById('cv-exp-list');
+  if(!state.experiences.length){ec.innerHTML='<p class="cv-no-content">Aucune expérience ajoutée</p>'}
+  else{ec.innerHTML=state.experiences.map(function(exp){return'<div class="cv-exp-entry"><div class="cv-exp-meta"><p class="cv-exp-date">'+esc(exp.date)+'</p><p class="cv-exp-location">'+esc(exp.location)+'</p></div><div><p class="cv-exp-role">'+( esc(exp.role)||'<em style="color:#ccc">Poste</em>')+'</p><p class="cv-exp-company">'+esc(exp.company)+'</p>'+(exp.missions.filter(function(m){return m.trim()}).length?'<ul class="cv-exp-missions">'+exp.missions.filter(function(m){return m.trim()}).map(function(m){return'<li>'+esc(m)+'</li>'}).join('')+'</ul>':'')+'</div></div>'}).join('')}
+  var dc=document.getElementById('cv-edu-list');
+  if(!state.educations.length){dc.innerHTML='<p class="cv-no-content">Aucune formation ajoutée</p>'}
+  else{dc.innerHTML=state.educations.map(function(edu){return'<div class="cv-edu-entry"><p class="cv-edu-date">'+esc(edu.date)+'</p><div><p class="cv-edu-degree">'+( esc(edu.degree)||'<em style="color:#ccc">Diplôme</em>')+'</p><p class="cv-edu-school">'+esc(edu.school)+'</p>'+(edu.note?'<p class="cv-edu-note">'+esc(edu.note)+'</p>':'')+'</div></div>'}).join('')}
+  var sc2=document.getElementById('cv-skills-list'),fs=state.skills.filter(function(s){return s.name});
+  if(!fs.length){sc2.innerHTML='<p class="cv-empty">Aucune compétence ajoutée</p>'}
+  else{sc2.innerHTML=fs.map(function(sk){return'<div class="cv-skill-item"><div class="cv-skill-label">'+esc(sk.name)+'<span class="cv-skill-level">'+levelLabel(sk.level)+'</span></div><div class="cv-skill-bar"><div class="cv-skill-fill" style="width:'+sk.level+'%"></div></div></div>'}).join('')}
+  var lc2=document.getElementById('cv-langs-list'),fl=state.languages.filter(function(l){return l.name});
+  if(!fl.length){lc2.innerHTML='<p class="cv-empty">Aucune langue ajoutée</p>'}
+  else{lc2.innerHTML=fl.map(function(l){return'<div class="cv-lang-item"><span class="cv-lang-name">'+esc(l.name)+'</span><span class="cv-lang-level">'+esc(l.level)+'</span></div>'}).join('')}
+  var ir=val('f-interests'),ic=document.getElementById('cv-interests-list');
+  if(!ir.trim()){ic.innerHTML='<p class="cv-empty">Aucun intérêt ajouté</p>'}
+  else{var tags=ir.split(',').map(function(t){return t.trim()}).filter(Boolean);ic.innerHTML='<div class="cv-tag-list">'+tags.map(function(t){return'<span class="cv-tag">'+esc(t)+'</span>'}).join('')+'</div>'}
+}
+function val(id){var el=document.getElementById(id);return el?el.value:''}
+function setText(id,text){var el=document.getElementById(id);if(el)el.innerHTML=text}
+function showContact(itemId,valId,text){var item=document.getElementById(itemId),valEl=document.getElementById(valId);if(item&&valEl){item.style.display=text?'flex':'none';valEl.textContent=text}}
+function esc(str){if(!str)return'';return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+document.querySelectorAll('.swatch').forEach(function(sw){sw.addEventListener('click',function(){document.querySelectorAll('.swatch').forEach(function(s){s.classList.remove('active')});sw.classList.add('active');var t=sw.dataset.theme;document.documentElement.setAttribute('data-theme',t==='marine'?'':t)})});
+document.getElementById('font-select').addEventListener('change',function(){document.documentElement.setAttribute('data-font',this.value)});
+function scaleCV(){var panel=document.getElementById('preview-panel'),wrapper=document.getElementById('cv-scale-wrapper'),pw=panel.clientWidth-40,cvW=794,scale=Math.min(1,pw/cvW);wrapper.style.transform='scale('+scale+')';wrapper.style.marginBottom=((scale-1)*1123)+'px'}
+window.addEventListener('resize',scaleCV);scaleCV();
+document.getElementById('btn-export').addEventListener('click',function(){
+  var overlay=document.getElementById('export-loading');overlay.classList.add('visible');
+  var wrapper=document.getElementById('cv-scale-wrapper'),pt=wrapper.style.transform,pm=wrapper.style.marginBottom;
+  wrapper.style.transform='none';wrapper.style.marginBottom='0';
+  var fn=val('f-firstname'),ln=val('f-lastname'),filename='CV_'+(fn||'Prenom')+'_'+(ln||'Nom')+'.pdf';
+  var el=document.getElementById('cv-preview');
+  var opt={margin:0,filename:filename,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2.5,useCORS:true,letterRendering:true,backgroundColor:'#fff'},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}};
+  html2pdf().set(opt).from(el).save().then(function(){wrapper.style.transform=pt;wrapper.style.marginBottom=pm;overlay.classList.remove('visible')}).catch(function(e){console.error(e);wrapper.style.transform=pt;wrapper.style.marginBottom=pm;overlay.classList.remove('visible')})
+});
+// Init with example data
+(function(){
+  document.getElementById('f-firstname').value='Thomas';
+  document.getElementById('f-lastname').value='Dupont';
+  document.getElementById('f-title').value='Ingénieur en Génie Mécanique & Production';
+  document.getElementById('f-phone').value='06 12 34 56 78';
+  document.getElementById('f-email').value='thomas.dupont@email.com';
+  document.getElementById('f-city').value='Nantes, France';
+  document.getElementById('f-linkedin').value='linkedin.com/in/thomas-dupont';
+  document.getElementById('f-github').value='github.com/thomas-dupont';
+  document.getElementById('f-profile').value="Ingénieur passionné par l'optimisation des systèmes industriels et l'éco-conception, j'allie rigueur technique et vision projet. Fort d'une expérience en métrologie industrielle et en CAO, je cherche à intégrer une équipe innovante où je pourrai contribuer au développement de solutions durables et performantes.";
+  document.getElementById('f-interests').value='Course à pied, Musculation, Wakeboard, Manga, Impression 3D';
+  [['SolidWorks',90],['Métrologie',88],['CATIA V5',72],['Python / VBA',58],['Lean / AMDEC',75]].forEach(function(pair){var id=++skillCounter;state.skills.push({id:id,name:pair[0],level:pair[1]})});renderSkillForm();
+  [['Français','Natif / Bilingue'],['Anglais','B2 – Intermédiaire+'],['Espagnol','Notions']].forEach(function(pair){var id=++langCounter;state.languages.push({id:id,name:pair[0],level:pair[1]})});renderLangForm();
+  var exps=[{role:'Technicien Métrologue – Alternance',company:'Precision Industrie SAS',date:'Sept. 2023 – Août 2024',location:'Nantes, 44',missions:["Gestion d'un parc de 500+ instruments via YIS et suivi des étalonnages","Réalisation d'analyses Cpk (seuil ≥ 1,67) et rédaction de rapports PPAP","Mesures optiques sur machine Keyence et validation dimensionnelle"]},{role:'Opérateur de Production – CDD',company:'AtlantTech Industries',date:'Été 2022',location:'Saint-Nazaire, 44',missions:['Conduite de machines à commande numérique (fraiseuse, tour CNC)','Contrôle dimensionnel des pièces et reporting qualité']}];
+  exps.forEach(function(e){var id=++expCounter;state.experiences.push(Object.assign({id:id},e))});renderExpForm();
+  var edus=[{degree:'BUT Génie Mécanique et Productique',school:"IUT d'Angers – Parcours CPD",date:'2022 – 2025',note:'Alternance · Mention Bien'},{degree:'Baccalauréat STI2D',school:'Lycée Jules Verne, Nantes',date:'2022',note:'Mention Bien'}];
+  edus.forEach(function(e){var id=++eduCounter;state.educations.push(Object.assign({id:id},e))});renderEduForm();
+  updatePreview();
+})();
+</script>
+</body>
+</html>
